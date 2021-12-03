@@ -16,9 +16,22 @@ class Document {
   }
 }
 
+Map simpleQueryString(String query, List<String> fields,
+    {String? defaultField}) {
+  return {
+    'simple_query_string': {
+      "query": query,
+      "fields": fields,
+      "default_operator": "and",
+      "lenient": "true",
+      if (defaultField != null) 'default_field': defaultField,
+    },
+  };
+}
+
 Future<List<Document>> searchOfficialDiary(
     elastic.Client client, String query) async {
-  var stringQuery = elastic.Query.queryString(query);
+  var stringQuery = simpleQueryString(query, ['content']);
   final searchResult = await client.search(
     index: "documentlist",
     type: "info",
@@ -41,3 +54,6 @@ void main() async {
   final client = elastic.Client(transport);
   print(await searchOfficialDiary(client, "a"));
 }
+
+String cleanDocumentContent(String content) =>
+    content.trim().split("\n").join(" ").substring(0, 100) + "...";

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:material_floating_search_bar/material_floating_search_bar.dart';
 import 'package:elastic_client/elastic_client.dart' as elastic;
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:diario_oficial/search.dart';
 // import 'package:diario_oficial/http_trans_impl.dart';
@@ -198,6 +199,15 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
+// class DocumentCard extends StatelessWidget {
+//   const DocumentCard({Key? key}) : super(key: key);
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Card(child: Column(children: []));
+//   }
+// }
+
 class SearchResultsListView extends StatelessWidget {
   final String? searchTerm;
   final elastic.Client? elasticClient;
@@ -234,18 +244,40 @@ class SearchResultsListView extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done &&
               snapshot.hasData) {
-            final hits = <ListTile>[];
-            for (final result in snapshot.data as List<Document>) {
-              hits.add(ListTile(
-                title: Text(result.title),
-                subtitle: Text(result.body),
-              ));
+            final data = snapshot.data as List<Document>;
+            if (data.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.search,
+                      size: 64,
+                    ),
+                    Text(
+                      'No se encontraron resultados',
+                      style: Theme.of(context).textTheme.headline5,
+                    )
+                  ],
+                ),
+              );
+            } else {
+              final hits = <ListTile>[];
+              for (final result in snapshot.data as List<Document>) {
+                hits.add(ListTile(
+                    leading: const Icon(Icons.description),
+                    title: Text(result.title),
+                    subtitle: Text(cleanDocumentContent(result.body)),
+                    trailing: InkWell(
+                        child: const Icon(Icons.open_in_new),
+                        onTap: () => launch("https://google.com"))));
+              }
+              return ListView(
+                // TODO: Fix padding in a dynamic manner
+                padding: EdgeInsets.only(top: fsb.widget.height + 16),
+                children: hits,
+              );
             }
-            return ListView(
-              // TODO: Fix padding in a dynamic manner
-              padding: EdgeInsets.only(top: fsb.widget.height + 10),
-              children: hits,
-            );
           } else if (const [ConnectionState.waiting, ConnectionState.active]
               .contains(snapshot.connectionState)) {
             return const CircularProgressIndicator();
@@ -258,9 +290,10 @@ class SearchResultsListView extends StatelessWidget {
                 const Icon(
                   Icons.error,
                   size: 64,
-                  semanticLabel: "Error",
+                  semanticLabel: "Error interno",
                 ),
-                Text("Error.", style: Theme.of(context).textTheme.headline5)
+                Text("Error interno.",
+                    style: Theme.of(context).textTheme.headline5)
               ],
             ));
           }
