@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:material_floating_search_bar/material_floating_search_bar.dart';
+import 'package:elastic_client/elastic_client.dart' as elastic;
 
 import 'package:diario_oficial/search.dart';
+// import 'package:diario_oficial/http_trans_impl.dart';
 
 void main() {
   runApp(const MyApp());
@@ -31,8 +33,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  static final _elasticURL = Uri.parse("http://0.0.0.0:9200");
+  static final _elasticTransport = elastic.HttpTransport(url: _elasticURL);
+  final elasticClient = elastic.Client(_elasticTransport);
+
   static const historyLength = 5;
-  List<String> _searchHistory = <String>[];
+  List<String> searchHistory = <String>[];
   List<String> filteredSearchHistory = <String>[];
 
   // Current term being searched
@@ -43,30 +49,30 @@ class _HomePageState extends State<HomePage> {
   }) {
     if (filter != null && filter.isNotEmpty) {
       // Reversed because we want the last added items to appear first in the UI
-      return _searchHistory.reversed
+      return searchHistory.reversed
           .where((term) => term.startsWith(filter))
           .toList();
     } else {
-      return _searchHistory.reversed.toList();
+      return searchHistory.reversed.toList();
     }
   }
 
   void addSearchTerm(String term) {
-    if (_searchHistory.contains(term)) {
+    if (searchHistory.contains(term)) {
       // This method will be implemented soon
       putSearchTermFirst(term);
       return;
     }
-    _searchHistory.add(term);
-    if (_searchHistory.length > historyLength) {
-      _searchHistory.removeRange(0, _searchHistory.length - historyLength);
+    searchHistory.add(term);
+    if (searchHistory.length > historyLength) {
+      searchHistory.removeRange(0, searchHistory.length - historyLength);
     }
     // Changes in _searchHistory mean that we have to update the filteredSearchHistory
     filteredSearchHistory = filterSearchTerms(filter: null);
   }
 
   void deleteSearchTerm(String term) {
-    _searchHistory.removeWhere((t) => t == term);
+    searchHistory.removeWhere((t) => t == term);
     filteredSearchHistory = filterSearchTerms(filter: null);
   }
 
@@ -98,6 +104,7 @@ class _HomePageState extends State<HomePage> {
         body: FloatingSearchBarScrollNotifier(
           child: SearchResultsListView(
             searchTerm: selectedTerm,
+            elasticClient: elasticClient,
           ),
         ),
         title: Text(selectedTerm ?? "Diario Oficial",
@@ -193,9 +200,11 @@ class _HomePageState extends State<HomePage> {
 
 class SearchResultsListView extends StatelessWidget {
   final String? searchTerm;
+  final elastic.Client? elasticClient;
 
   const SearchResultsListView({
     Key? key,
+    @required this.elasticClient,
     @required this.searchTerm,
   }) : super(key: key);
 
@@ -221,16 +230,41 @@ class SearchResultsListView extends StatelessWidget {
         ),
       );
     }
-    return ListView(
-      // TODO: Fix padding in a dynamic manner
-      padding: EdgeInsets.only(top: fsb.widget.height + 10),
-      children: List.generate(
-        50,
-        (index) => ListTile(
-          title: Text('$searchTerm search result'),
-          subtitle: Text(index.toString()),
-        ),
-      ),
-    );
+    return FutureBuilder(
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done &&
+              snapshot.hasData) {
+            final hits = <ListTile>[];
+            for (final result in snapshot.data as List<Document>) {
+              hits.add(ListTile(
+                title: Text(result.title),
+                subtitle: Text(result.body),
+              ));
+            }
+            return ListView(
+              // TODO: Fix padding in a dynamic manner
+              padding: EdgeInsets.only(top: fsb.widget.height + 10),
+              children: hits,
+            );
+          } else if (const [ConnectionState.waiting, ConnectionState.active]
+              .contains(snapshot.connectionState)) {
+            return const CircularProgressIndicator();
+          } else {
+            return Center(
+                child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.error,
+                  size: 64,
+                  semanticLabel: "Error",
+                ),
+                Text("Error.", style: Theme.of(context).textTheme.headline5)
+              ],
+            ));
+          }
+        },
+        future: searchOfficialDiary(elasticClient!, searchTerm!));
   }
 }
