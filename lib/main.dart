@@ -101,6 +101,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: FloatingSearchBar(
+        backgroundColor: Colors.teal[100],
         controller: controller,
         body: FloatingSearchBarScrollNotifier(
           child: SearchResultsListView(
@@ -108,8 +109,10 @@ class _HomePageState extends State<HomePage> {
             elasticClient: elasticClient,
           ),
         ),
-        title: Text(selectedTerm ?? "Diario Oficial",
-            style: Theme.of(context).textTheme.headline6),
+        title: Text(
+          selectedTerm ?? "Diario Oficial",
+          style: Theme.of(context).textTheme.headline6,
+        ),
         hint: "Busca nombres, organizaciones, etc.",
         actions: [FloatingSearchBarAction.searchToClear()],
         onQueryChanged: (query) {
@@ -128,7 +131,7 @@ class _HomePageState extends State<HomePage> {
           return ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: Material(
-              color: Colors.white,
+              color: Colors.teal[50],
               elevation: 4,
               child: Builder(
                 builder: (context) {
@@ -167,6 +170,7 @@ class _HomePageState extends State<HomePage> {
                                 term,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.bodyText1,
                               ),
                               leading: const Icon(Icons.history),
                               trailing: IconButton(
@@ -218,6 +222,52 @@ class SearchResultsListView extends StatelessWidget {
     @required this.searchTerm,
   }) : super(key: key);
 
+  RichText cleanAndGiveEmphasis(List<String> text) {
+    final emMatch = RegExp(r"<em\s*.*>\s*.*<\/em>");
+    final newlineMatch = RegExp(r"(\r\n|\r|\n)");
+    final whitespaceMatch = RegExp(r"\s+");
+    final String? emphasized = emMatch
+        .stringMatch(text[0])!
+        .replaceAll("<em>", "")
+        .replaceAll("</em>", "")
+        .replaceAll(newlineMatch, " ")
+        .replaceAll(whitespaceMatch, " ");
+    assert(emphasized != null);
+    final List<String> nonEmphasized = text[0]
+        .replaceAll(newlineMatch, " ")
+        .replaceAll(whitespaceMatch, " ")
+        .trim()
+        .split(emMatch);
+    return RichText(
+      text: TextSpan(
+        children: [
+          TextSpan(
+            text: '“${nonEmphasized[0]}',
+            style: const TextStyle(
+              color: Colors.black,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+          TextSpan(
+            text: emphasized,
+            style: const TextStyle(
+              color: Colors.blue,
+              fontWeight: FontWeight.bold,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+          TextSpan(
+            text: '${nonEmphasized[1]}”',
+            style: const TextStyle(
+              color: Colors.black,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     @required
@@ -251,7 +301,7 @@ class SearchResultsListView extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Icon(
-                      Icons.search,
+                      Icons.error_outline_outlined,
                       size: 64,
                     ),
                     Text(
@@ -267,7 +317,7 @@ class SearchResultsListView extends StatelessWidget {
                 hits.add(ListTile(
                     leading: const Icon(Icons.description),
                     title: Text(result.title),
-                    subtitle: Text(cleanDocumentContent(result.body)),
+                    subtitle: cleanAndGiveEmphasis(result.highlight),
                     trailing: InkWell(
                         child: const Icon(Icons.open_in_new),
                         onTap: () => launch("https://google.com"))));

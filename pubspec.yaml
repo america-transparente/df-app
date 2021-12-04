@@ -38,6 +38,7 @@ dependencies:
   elastic_client: ^0.3.9
   universal_io: ^2.0.4
   url_launcher: ^6.0.17
+  tuple: ^2.0.0
 
 dev_dependencies:
   flutter_test:
