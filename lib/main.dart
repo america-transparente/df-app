@@ -310,9 +310,10 @@ class SearchResultsListView extends StatelessWidget {
                     leading: const Icon(Icons.description),
                     title: Text(result.title),
                     subtitle: cleanAndGiveEmphasis(result.highlight),
+                    tileColor: const Color(0xFFF5F5F5),
                     trailing: InkWell(
                         child: const Icon(Icons.open_in_new),
-                        onTap: () => launch(result.path))));
+                        onTap: () => launch("documents/" + result.path))));
               }
               return ListView(
                 // TODO: Fix padding in a dynamic manner
