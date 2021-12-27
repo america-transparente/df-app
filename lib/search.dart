@@ -69,7 +69,7 @@ Future<List<Document>> searchOfficialDiary(
 }
 
 void main() async {
-  var url = Uri.parse("https://df-api.reguleque.cl/es");
+  var url = Uri.parse("https://df-api.americatransparente.org/es");
   final transport = elastic.HttpTransport(url: url);
   final client = elastic.Client(transport);
   print(await searchOfficialDiary(client, "a"));
