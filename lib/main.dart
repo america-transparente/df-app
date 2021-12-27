@@ -312,7 +312,7 @@ class SearchResultsListView extends StatelessWidget {
                     subtitle: cleanAndGiveEmphasis(result.highlight),
                     trailing: InkWell(
                         child: const Icon(Icons.open_in_new),
-                        onTap: () => launch("https://google.com"))));
+                        onTap: () => launch(result.path))));
               }
               return ListView(
                 // TODO: Fix padding in a dynamic manner

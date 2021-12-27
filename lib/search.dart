@@ -4,14 +4,13 @@ import 'package:elastic_client/elastic_client.dart' as elastic;
 
 class Document {
   final String title;
-  final String body;
+  final String content;
   final List<String> highlight;
   // TODO: Change to DateTime
-  final String indexDate;
-  final String directory;
+  final String date;
+  final String path;
 
-  Document(
-      this.title, this.body, this.highlight, this.indexDate, this.directory);
+  Document(this.title, this.content, this.highlight, this.date, this.path);
 
   @override
   String toString() {
@@ -49,7 +48,6 @@ Future<List<Document>> searchOfficialDiary(
 
   final elastic.SearchResult searchResult = await client.search(
     index: "dfinales2",
-    type: "info",
     query: queryString,
     highlight: highlight,
     source: true,
@@ -57,11 +55,11 @@ Future<List<Document>> searchOfficialDiary(
   var documentList = <Document>[];
   for (final result in searchResult.hits) {
     documentList.add(Document(
-        result.doc["name"],
+        result.doc["title"],
         result.doc["content"],
         result.highlight!["content"] ?? [],
-        result.doc["indexingDate"],
-        result.doc["directory"]));
+        result.doc["date"],
+        result.doc["path"]));
   }
 
   print("Search: Found ${documentList.length} results");
