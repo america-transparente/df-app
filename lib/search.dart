@@ -48,7 +48,7 @@ Future<List<Document>> searchOfficialDiary(
   final highlight = queryContents[1];
 
   final elastic.SearchResult searchResult = await client.search(
-    index: "documentlist",
+    index: "dfinales2",
     type: "info",
     query: queryString,
     highlight: highlight,
