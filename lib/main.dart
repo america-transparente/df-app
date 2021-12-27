@@ -34,7 +34,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  static final _elasticURL = Uri.parse("http://0.0.0.0:9200");
+  static final _elasticURL = Uri.parse("https://df-api.reguleque.cl/es");
   static final _elasticTransport = elastic.HttpTransport(url: _elasticURL);
   final elasticClient = elastic.Client(_elasticTransport);
 
