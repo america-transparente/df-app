@@ -203,15 +203,6 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-// class DocumentCard extends StatelessWidget {
-//   const DocumentCard({Key? key}) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Card(child: Column(children: []));
-//   }
-// }
-
 class SearchResultsListView extends StatelessWidget {
   final String? searchTerm;
   final elastic.Client? elasticClient;
