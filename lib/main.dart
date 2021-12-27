@@ -313,7 +313,7 @@ class SearchResultsListView extends StatelessWidget {
                     trailing: InkWell(
                         child: const Icon(Icons.open_in_new),
                         onTap: () => launch(
-                            "https://df-api.americatransparente.cl/documents/" +
+                            "https://df-api.americatransparente.org/documents/" +
                                 result.path))));
               }
               return ListView(
