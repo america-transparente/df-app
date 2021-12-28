@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Diario Oficial',
+      title: 'Dueños Finales',
       theme: ThemeData(
         primarySwatch: Colors.teal,
         visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -111,7 +111,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         title: Text(
-          selectedTerm ?? "Diario Oficial",
+          selectedTerm ?? "Dueños Finales",
           style: Theme.of(context).textTheme.headline6,
         ),
         hint: "Busca nombres, organizaciones, etc.",
