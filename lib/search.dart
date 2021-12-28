@@ -4,13 +4,15 @@ import 'package:elastic_client/elastic_client.dart' as elastic;
 
 class Document {
   final String title;
+  final String cve;
   final String content;
   final List<String> highlight;
   // TODO: Change to DateTime
   final String date;
   final String path;
 
-  Document(this.title, this.content, this.highlight, this.date, this.path);
+  Document(
+      this.title, this.cve, this.content, this.highlight, this.date, this.path);
 
   @override
   String toString() {
@@ -51,11 +53,13 @@ Future<List<Document>> searchOfficialDiary(
     query: queryString,
     highlight: highlight,
     source: true,
+    size: 50,
   );
   var documentList = <Document>[];
   for (final result in searchResult.hits) {
     documentList.add(Document(
         result.doc["title"],
+        result.doc["cve"],
         result.doc["content"],
         result.highlight!["content"] ?? [],
         result.doc["date"],
