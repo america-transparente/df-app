@@ -1,6 +1,5 @@
-// import 'package:diario_oficial/http_trans_impl.dart';
-
 import 'package:elastic_client/elastic_client.dart' as elastic;
+import 'package:intl/intl.dart';
 
 class Document {
   final String title;
@@ -8,7 +7,7 @@ class Document {
   final String content;
   final List<String> highlight;
   // TODO: Change to DateTime
-  final String date;
+  final DateTime date;
   final String path;
 
   Document(
@@ -62,7 +61,7 @@ Future<List<Document>> searchOfficialDiary(
         result.doc["cve"],
         result.doc["content"],
         result.highlight!["content"] ?? [],
-        result.doc["date"],
+        DateTime.parse(result.doc["date"]),
         result.doc["path"]));
   }
 
@@ -79,3 +78,14 @@ void main() async {
 
 String cleanDocumentContent(String content) =>
     content.trim().split("\n").join(" ").substring(0, 100) + "...";
+
+String generateDocumentTitle(Document doc) {
+  final DateFormat formatter = DateFormat('dd/MM/yyyy');
+  if (doc.title.trim() == "" && doc.cve.trim() == "") {
+    return "Publicación del ${formatter.format(doc.date)}";
+  } else if (doc.title.trim() == "") {
+    return "Publicación del ${formatter.format(doc.date)} (${doc.cve})";
+  } else {
+    return "Publicación del ${formatter.format(doc.date)}";
+  }
+}

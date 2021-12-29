@@ -308,7 +308,7 @@ class SearchResultsListView extends StatelessWidget {
               for (final result in snapshot.data as List<Document>) {
                 hits.add(ListTile(
                     leading: const Icon(Icons.description),
-                    title: Text(result.title),
+                    title: Text(generateDocumentTitle(result)),
                     subtitle: cleanAndGiveEmphasis(result.highlight),
                     trailing: InkWell(
                         child: const Icon(Icons.open_in_new),
