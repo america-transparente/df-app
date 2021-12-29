@@ -86,6 +86,6 @@ String generateDocumentTitle(Document doc) {
   } else if (doc.title.trim() == "") {
     return "Publicación del ${formatter.format(doc.date)} (${doc.cve})";
   } else {
-    return "Publicación del ${formatter.format(doc.date)}";
+    return "Publicación del ${formatter.format(doc.date)} (${doc.cve})";
   }
 }
