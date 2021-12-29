@@ -1,26 +1,33 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:material_floating_search_bar/material_floating_search_bar.dart';
 import 'package:elastic_client/elastic_client.dart' as elastic;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:json_theme/json_theme.dart';
 
-import 'package:diario_oficial/search.dart';
-// import 'package:diario_oficial/http_trans_impl.dart';
+import 'package:duenos_finales/search.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final themeStr = await rootBundle.loadString('assets/flutter_theme.json');
+  final themeJson = jsonDecode(themeStr);
+
+  final theme = ThemeDecoder.decodeThemeData(themeJson)!;
+
+  runApp(MyApp(theme: theme));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  final ThemeData theme;
+
+  const MyApp({Key? key, required this.theme}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Dueños Finales',
-      theme: ThemeData(
-        primarySwatch: Colors.teal,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
+      theme: theme,
       home: const HomePage(),
     );
   }
@@ -102,7 +109,8 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: FloatingSearchBar(
-        backgroundColor: Colors.teal[100],
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        iconColor: Theme.of(context).colorScheme.onPrimary,
         controller: controller,
         body: FloatingSearchBarScrollNotifier(
           child: SearchResultsListView(
@@ -112,9 +120,18 @@ class _HomePageState extends State<HomePage> {
         ),
         title: Text(
           selectedTerm ?? "Dueños Finales",
-          style: Theme.of(context).textTheme.headline6,
+          style: Theme.of(context).textTheme.headline6?.merge(
+              TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
         ),
         hint: "Busca nombres, organizaciones, etc.",
+        hintStyle: Theme.of(context)
+            .textTheme
+            .bodyText1!
+            .merge(TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
+        queryStyle: Theme.of(context)
+            .textTheme
+            .bodyText1!
+            .merge(TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
         actions: [FloatingSearchBarAction.searchToClear()],
         onQueryChanged: (query) {
           setState(() {
@@ -132,7 +149,7 @@ class _HomePageState extends State<HomePage> {
           return ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: Material(
-              color: Colors.teal[50],
+              color: Theme.of(context).colorScheme.primary,
               elevation: 4,
               child: Builder(
                 builder: (context) {
@@ -146,13 +163,18 @@ class _HomePageState extends State<HomePage> {
                         'Comienza a buscar!',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.caption,
+                        style: Theme.of(context).textTheme.subtitle1!.merge(
+                            TextStyle(
+                                color:
+                                    Theme.of(context).colorScheme.onPrimary)),
                       ),
                     );
                   } else if (filteredSearchHistory.isEmpty) {
                     return ListTile(
                       title: Text(controller.query),
-                      leading: const Icon(Icons.search),
+                      textColor: Theme.of(context).colorScheme.onPrimary,
+                      leading: Icon(Icons.search,
+                          color: Theme.of(context).colorScheme.onPrimary),
                       onTap: () {
                         setState(() {
                           addSearchTerm(controller.query);
@@ -171,11 +193,22 @@ class _HomePageState extends State<HomePage> {
                                 term,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context).textTheme.bodyText1,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyText1!
+                                    .merge(TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary)),
                               ),
-                              leading: const Icon(Icons.history),
+                              leading: Icon(Icons.history,
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary),
                               trailing: IconButton(
-                                icon: const Icon(Icons.clear),
+                                icon: Icon(Icons.clear,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onPrimary),
                                 onPressed: () {
                                   setState(() {
                                     deleteSearchTerm(term);
@@ -270,14 +303,20 @@ class SearchResultsListView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
-              Icons.search,
-              size: 64,
-            ),
+            Icon(Icons.search,
+                size: 64, color: Theme.of(context).colorScheme.onBackground),
             Text(
               'Empieza a buscar!',
               style: Theme.of(context).textTheme.headline5,
-            )
+            ),
+            Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 25.0, vertical: 5),
+                child: Text(
+                  "Recuerda que esta plataforma está en alpha, así que todavía hay cosas que no funcionan como deberían.\n\nTip: Para hacer búsquedas exactas, rodea tu consulta en comillas dobles (\").",
+                  style: Theme.of(context).textTheme.bodyText1,
+                  textAlign: TextAlign.center,
+                ))
           ],
         ),
       );
@@ -289,19 +328,30 @@ class SearchResultsListView extends StatelessWidget {
             final data = snapshot.data as List<Document>;
             if (data.isEmpty) {
               return Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.error_outline_outlined,
-                      size: 64,
+                child: Padding(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.error_outline_outlined,
+                          size: 64,
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                        Text(
+                          'No se encontraron resultados',
+                          style: Theme.of(context).textTheme.headline5?.merge(
+                              TextStyle(
+                                  color: Theme.of(context).colorScheme.error)),
+                          textAlign: TextAlign.center,
+                        ),
+                        Text(
+                          "Revisa que hayas escrito bien las entidades y prueba con formas distintas de deletrear lo que estabas buscando.",
+                          style: Theme.of(context).textTheme.bodyText1,
+                          textAlign: TextAlign.center,
+                        )
+                      ],
                     ),
-                    Text(
-                      'No se encontraron resultados',
-                      style: Theme.of(context).textTheme.headline5,
-                    )
-                  ],
-                ),
+                    padding: const EdgeInsets.symmetric(horizontal: 40.0)),
               );
             } else {
               final hits = <ListTile>[];
@@ -331,13 +381,20 @@ class SearchResultsListView extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Icon(
-                  Icons.error,
-                  size: 64,
-                  semanticLabel: "Error interno",
-                ),
-                Text("Error interno.",
-                    style: Theme.of(context).textTheme.headline5)
+                Icon(Icons.error,
+                    size: 64,
+                    semanticLabel: "Error interno",
+                    color: Theme.of(context).colorScheme.error),
+                Text("Error interno",
+                    style: Theme.of(context).textTheme.headline5!.merge(
+                        TextStyle(color: Theme.of(context).colorScheme.error))),
+                Padding(
+                    child: Text(
+                      "Puede que nuestros servidores estén más ocupados de lo usual. Si el error persiste, contáctanos a contacto@americatransparente.org.",
+                      style: Theme.of(context).textTheme.subtitle1,
+                      textAlign: TextAlign.center,
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 40.0))
               ],
             ));
           }
