@@ -313,7 +313,7 @@ class SearchResultsListView extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 25.0, vertical: 5),
                 child: Text(
-                  "Recuerda que esta plataforma está en alpha, así que todavía hay cosas que no funcionan como deberían.\n\nTip: Para hacer búsquedas exactas, rodea tu consulta en comillas dobles (\"\").",
+                  "Recuerda que esta plataforma está en alpha, así que todavía puede haber cosas que no funcionan como deberían.\n\nTip: Para hacer búsquedas exactas, rodea tu consulta en comillas dobles (\"\").",
                   style: Theme.of(context).textTheme.bodyText1,
                   textAlign: TextAlign.center,
                 ))
