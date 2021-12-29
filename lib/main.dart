@@ -374,7 +374,11 @@ class SearchResultsListView extends StatelessWidget {
             }
           } else if (const [ConnectionState.waiting, ConnectionState.active]
               .contains(snapshot.connectionState)) {
-            return const CircularProgressIndicator();
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [CircularProgressIndicator()],
+            );
           } else {
             return Center(
                 child: Column(
