@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Dueños Finales',
+      title: 'Dueños Directos',
       theme: theme,
       home: const HomePage(),
     );
@@ -119,7 +119,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         title: Text(
-          selectedTerm ?? "Dueños Finales",
+          selectedTerm ?? "Dueños Directos",
           style: Theme.of(context).textTheme.headline6?.merge(
               TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
         ),
