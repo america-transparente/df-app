@@ -356,15 +356,19 @@ class SearchResultsListView extends StatelessWidget {
             } else {
               final hits = <ListTile>[];
               for (final result in snapshot.data as List<Document>) {
-                hits.add(ListTile(
+                hits.add(
+                  ListTile(
                     leading: const Icon(Icons.description),
-                    title: Text(generateDocumentTitle(result)),
+                    title: SelectableText(generateDocumentTitle(result)),
                     subtitle: cleanAndGiveEmphasis(result.highlight),
                     trailing: InkWell(
-                        child: const Icon(Icons.open_in_new),
-                        onTap: () => launch(
-                            "https://df-api.americatransparente.org/documents/" +
-                                result.path))));
+                      child: const Icon(Icons.open_in_new),
+                      onTap: () => launch(
+                          "https://df-api.americatransparente.org/documents/" +
+                              result.path),
+                    ),
+                  ),
+                );
               }
               return ListView(
                 // TODO: Fix padding in a dynamic manner

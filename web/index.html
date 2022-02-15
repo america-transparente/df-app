@@ -45,24 +45,35 @@
 
   <title>Dueños Directos | América Transparente</title>
   <link rel="manifest" href="manifest.json">
+
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-VS4211RL3N"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'G-VS4211RL3N');
+  </script>
 </head>
 
 <body>
   <!-- This script installs service_worker.js to provide PWA functionality to
        application. For more information, see:
        https://developers.google.com/web/fundamentals/primers/service-workers -->
-  <img src="icons/df_directos.png"  class="center" />
+  <img src="icons/df_directos.png" class="center" />
   <style>
     .center {
-    margin: 0;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin-right: -50%;
-    transform: translate(-50%, -50%);
-    width: 90%;
-    max-width: 900px;
-  }
+      margin: 0;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      margin-right: -50%;
+      transform: translate(-50%, -50%);
+      width: 90%;
+      max-width: 900px;
+    }
   </style>
   <script>
     var serviceWorkerVersion = null;
