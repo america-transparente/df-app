@@ -65,7 +65,7 @@ flutter:
 
   assets:
     - assets/flutter_theme.json
-    - assets/popup.svg
+    - assets/popup.png
   #  - assets/df_finales.png
   # To add assets to your application, add an assets section, like this:
   # assets:

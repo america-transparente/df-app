@@ -52,9 +52,9 @@ class _HomePageState extends State<HomePage> {
         return AlertDialog(
           title: const Text('Necesitamos decirte algo.'),
           content: InkWell(
-            child: SvgPicture.asset("assets/popup.svg"),
+            child: Image.asset("assets/popup.png"),
             onTap: () => launch(
-                "https://app.reveniu.com/checkout-custom-link/aSmPLaykZ0lAnrXpMcJUopEccz9F4kRE"),
+                "https://app.reveniu.com/checkout-custom-link/jXN7ECN70PAoUu1IqEd9kixotsrI2shD"),
           ),
           actions: <Widget>[
             TextButton(
