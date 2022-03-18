@@ -6,7 +6,6 @@ class Document {
   final String cve;
   final String content;
   final List<String> highlight;
-  // TODO: Change to DateTime
   final DateTime date;
   final String path;
 

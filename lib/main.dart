@@ -5,6 +5,7 @@ import 'package:material_floating_search_bar/material_floating_search_bar.dart';
 import 'package:elastic_client/elastic_client.dart' as elastic;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:json_theme/json_theme.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:duenos_finales/search.dart';
 
@@ -41,6 +42,41 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  bool seenDonationPopup = false;
+
+  Future<void> _showDonationPopup() {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Necesitamos decirte algo.'),
+          content: InkWell(
+            child: SvgPicture.asset("assets/popup.svg"),
+            onTap: () => launch(
+                "https://app.reveniu.com/checkout-custom-link/aSmPLaykZ0lAnrXpMcJUopEccz9F4kRE"),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cerrar'),
+              onPressed: () {
+                seenDonationPopup = true;
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+                onPressed: () {
+                  seenDonationPopup = true;
+                  launch(
+                      "https://app.reveniu.com/checkout-custom-link/aSmPLaykZ0lAnrXpMcJUopEccz9F4kRE");
+                },
+                child: const Text("Donar"))
+          ],
+        );
+      },
+    );
+  }
+
   static final _elasticURL =
       Uri.parse("https://df-api.americatransparente.org/es");
   static final _elasticTransport = elastic.HttpTransport(url: _elasticURL);
@@ -140,6 +176,10 @@ class _HomePageState extends State<HomePage> {
         },
         onSubmitted: (query) {
           setState(() {
+            if (!seenDonationPopup) {
+              _showDonationPopup();
+            }
+
             addSearchTerm(query);
             selectedTerm = query;
           });
